@@ -14,7 +14,7 @@ public class Server {
     public Server() {
 
         try {
-            ServerSocket serverSocket = new ServerSocket(port);
+            serverSocket = new ServerSocket(port);
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
@@ -74,5 +74,8 @@ public class Server {
                 throw new RuntimeException(ex);
             }
         }
+    }
+    void main() {
+        Server s = new Server();
     }
 }

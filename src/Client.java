@@ -1,8 +1,8 @@
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.Socket;
 
 public class Client implements Runnable {
@@ -43,7 +43,7 @@ public class Client implements Runnable {
                 if (inputLine.startsWith("Connected:")) {
                     gui.addMemberToList(inputLine.substring(11));
                 } else if (inputLine.startsWith("Disconnected:")) {
-                    gui.removeUserFromList(inputLine.substring(13));
+                    gui.removeUserFromList(inputLine.substring(14));
                 } else {
                     gui.addMsgToChat(inputLine);
                 }
@@ -52,8 +52,4 @@ public class Client implements Runnable {
             throw new RuntimeException(e);
         }
     }
-}
-
-void main() {
-    Client c = new Client(userName);
 }

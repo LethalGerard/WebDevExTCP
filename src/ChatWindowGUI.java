@@ -38,7 +38,7 @@ public class ChatWindowGUI extends JFrame {
             System.exit(0);
         });
         userInput.addActionListener(_ -> {
-            client.sendMsg(client.userName + ": " + userInput.getText());
+            client.sendMsg(/*client.userName + ": " + */userInput.getText());
             userInput.setText("");
         });
         setVisible(true);
