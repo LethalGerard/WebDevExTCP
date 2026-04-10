@@ -3,14 +3,14 @@ import java.awt.*;
 
 public class ChatWindowGUI extends JFrame {
 
-    //ChatClient chatClient;
+    Client client;
 
     final JButton disconnectBtn;
     final JTextArea chatArea;
     final JTextArea memberList;
     final JTextField userInput;
 
-    public ChatWindowGUI(String userName /*ChatClient chatClient*/) {
+    public ChatWindowGUI(String userName, Client client) {
         //this.chatClient = chatClient;
         setTitle("Chat - " + userName);
         setSize(700, 500);
@@ -34,11 +34,11 @@ public class ChatWindowGUI extends JFrame {
 
         add(mainPanel);
         disconnectBtn.addActionListener(_ -> {
-            //chatClient.sendMessage("Disconnected: " + chatClient.userName);
+            client.sendMsg("Disconnected: " + client.userName);
             System.exit(0);
         });
         userInput.addActionListener(_ -> {
-            //chatClient.sendMessage(chatClient.userName + ": " + userInput.getText());
+            client.sendMsg(client.userName + ": " + userInput.getText());
             userInput.setText("");
         });
         setVisible(true);

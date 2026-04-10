@@ -2,12 +2,12 @@ import java.io.*;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Server {
     int port = 8888;
-    List<Socket> clients = new ArrayList<>();
+    Map<String, PrintWriter> clients = new ConcurrentHashMap<>();
     ServerSocket serverSocket;
 
 
@@ -17,13 +17,17 @@ public class Server {
             ServerSocket serverSocket = new ServerSocket(port);
 
             while (true) {
-                Socket clientSocket;
-                clients.add(clientSocket = serverSocket.accept());
-                ClientHandler clientHandler = new ClientHandler(clientSocket);
+                Socket clientSocket = serverSocket.accept();
+                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                String userName = in.readLine();
+                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+                clients.put(userName, out);
+                ClientHandler clientHandler = new ClientHandler(in, userName, out);
+
+                broadCastMsg("Connected: " + userName);
 
                 Thread handlerThread = new Thread(clientHandler);
                 handlerThread.start();
-
                 IO.println("New client connected");
             }
 
@@ -35,34 +39,38 @@ public class Server {
     }
 
     public void broadCastMsg(String msg) {
-        for (Socket socket : clients) {
-            try {
-                PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
-                pw.println(msg);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        for (PrintWriter pw : clients.values()) {
+            pw.println(msg);
         }
     }
 
     class ClientHandler implements Runnable {
-        Socket clientSocket;
+        BufferedReader in;
+        String userName;
+        PrintWriter out;
 
-        public ClientHandler(Socket clientSocket) {
-            this.clientSocket = clientSocket;
+        public ClientHandler(BufferedReader in, String userName, PrintWriter out) {
+            this.in = in;
+            this.userName = userName;
+            this.out = out;
+
+            for (String name : clients.keySet()) {
+                out.println("Connected: " + name);
+            }
         }
 
         @Override
         public void run() {
-            try (
-                    BufferedReader in = new BufferedReader(new InputStreamReader((clientSocket.getInputStream())));
-            ) {
+            try {
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
-                    broadCastMsg(inputLine);
+                    broadCastMsg(userName + ": " + inputLine);
                 }
-                clients.remove(clientSocket);
+                broadCastMsg("Disconnected: " + userName);
+                clients.remove(userName);
             } catch (IOException ex) {
+                broadCastMsg("Disconnected: " + userName);
+                clients.remove(userName);
                 throw new RuntimeException(ex);
             }
         }
